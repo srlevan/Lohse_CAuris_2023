@@ -1,0 +1,511 @@
+---
+title: "P1A6 - Forest Plot Visualization"
+output: html_notebook
+---
+
+# Goal: Forest Graph with EC50s for each Strain x Drug #
+
+# Set Working Directory #
+```{r}
+rm(list=ls())
+setwd("~/Box Sync/DeRisi Lab/Experiments 2020/P1A6 - EC50 Refinement/P1A6-DataVisualization/")
+```
+
+# Make a Test Plot with Fluconazole #
+#Read in the EC50 and LD50 Data#
+```{r}
+FlucEC50 <- read.table("Table_Fluconazole.txt", sep="\t", header=TRUE)
+FlucLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Fluconazole_Tox.txt", sep="\t",header=TRUE)
+
+FlucCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+FlucCombo[c(1:3),]<- as.matrix(FlucLD50)
+FlucCombo[c(4:19),]<-as.matrix(FlucEC50)
+
+write.table(FlucCombo, "Table_LD50_EC50_Fluconazole.txt", sep="\t", quote=F, row.names = F)
+
+FlucCombo <- read.table("Table_LD50_EC50_Fluconazole.txt", header=TRUE, sep="\t")
+
+FlucCombo$Strain <- factor(FlucCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+library(ggplot2)
+FlucCombo$Strain <- factor(FlucCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+Graph_Fluc <- ggplot(FlucCombo)+
+    geom_point(aes(x=FlucCombo$Strain, y=FlucCombo$EC50))+
+    geom_errorbar(aes(x=FlucCombo$Strain, ymin=FlucCombo$EC50.min, ymax=FlucCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Fluc
+ggsave(filename="Graph_Forest_Fluc.pdf", plot=Graph_Fluc, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+#Repeat for All Other Drugs#
+# Make a Test Plot with Caspofungin #
+#Read in the EC50 and LD50 Data#
+```{r}
+CaspofunginEC50 <- read.table("Table_Caspofungin.txt", sep="\t", header=TRUE)
+CaspofunginLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Caspofungin_Tox.txt", sep="\t",header=TRUE)
+
+CaspofunginCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+CaspofunginCombo[c(1:3),]<- as.matrix(CaspofunginLD50)
+CaspofunginCombo[c(4:19),]<-as.matrix(CaspofunginEC50)
+
+write.table(CaspofunginCombo, "Table_LD50_EC50_Caspofungin.txt", sep="\t", quote=F, row.names = F)
+
+CaspofunginCombo <- read.table("Table_LD50_EC50_Caspofungin.txt", header=TRUE, sep="\t")
+
+CaspofunginCombo$Strain <- factor(CaspofunginCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Caspofungin <- ggplot(CaspofunginCombo)+
+    geom_point(aes(x=CaspofunginCombo$Strain, y=CaspofunginCombo$EC50))+
+    geom_errorbar(aes(x=CaspofunginCombo$Strain, ymin=CaspofunginCombo$EC50.min, ymax=CaspofunginCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Caspofungin
+ggsave(filename="Graph_Forest_Caspofungin.pdf", plot=Graph_Caspofungin, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Broxyquinolone #
+#Read in the EC50 and LD50 Data#
+```{r}
+BroxyquinoloneEC50 <- read.table("Table_Broxyquinolone.txt", sep="\t", header=TRUE)
+BroxyquinoloneLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Broxyquinolone_Tox.txt", sep="\t",header=TRUE)
+
+BroxyquinoloneCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+BroxyquinoloneCombo[c(1:3),]<- as.matrix(BroxyquinoloneLD50)
+BroxyquinoloneCombo[c(4:19),]<-as.matrix(BroxyquinoloneEC50)
+
+write.table(BroxyquinoloneCombo, "Table_LD50_EC50_Broxyquinolone.txt", sep="\t", quote=F, row.names = F)
+
+BroxyquinoloneCombo <- read.table("Table_LD50_EC50_Broxyquinolone.txt", header=TRUE, sep="\t")
+
+BroxyquinoloneCombo$Strain <- factor(BroxyquinoloneCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Broxyquinolone <- ggplot(BroxyquinoloneCombo)+
+    geom_point(aes(x=BroxyquinoloneCombo$Strain, y=BroxyquinoloneCombo$EC50))+
+    geom_errorbar(aes(x=BroxyquinoloneCombo$Strain, ymin=BroxyquinoloneCombo$EC50.min, ymax=BroxyquinoloneCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Broxyquinolone
+ggsave(filename="Graph_Forest_Broxyquinolone.pdf", plot=Graph_Broxyquinolone, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Chloroxine #
+#Read in the EC50 and LD50 Data#
+```{r}
+ChloroxineEC50 <- read.table("Table_Chloroxine.txt", sep="\t", header=TRUE)
+ChloroxineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Chloroxine_Tox.txt", sep="\t",header=TRUE)
+
+ChloroxineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+ChloroxineCombo[c(1:3),]<- as.matrix(ChloroxineLD50)
+ChloroxineCombo[c(4:19),]<-as.matrix(ChloroxineEC50)
+
+write.table(ChloroxineCombo, "Table_LD50_EC50_Chloroxine.txt", sep="\t", quote=F, row.names = F)
+
+ChloroxineCombo <- read.table("Table_LD50_EC50_Chloroxine.txt", header=TRUE, sep="\t")
+
+ChloroxineCombo$Strain <- factor(ChloroxineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Chloroxine <- ggplot(ChloroxineCombo)+
+    geom_point(aes(x=ChloroxineCombo$Strain, y=ChloroxineCombo$EC50))+
+    geom_errorbar(aes(x=ChloroxineCombo$Strain, ymin=ChloroxineCombo$EC50.min, ymax=ChloroxineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Chloroxine
+ggsave(filename="Graph_Forest_Chloroxine.pdf", plot=Graph_Chloroxine, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Clioquinol #
+#Read in the EC50 and LD50 Data#
+```{r}
+ClioquinolEC50 <- read.table("Table_Clioquinol.txt", sep="\t", header=TRUE)
+ClioquinolLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Clioquinol_Tox.txt", sep="\t",header=TRUE)
+
+ClioquinolCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+ClioquinolCombo[c(1:3),]<- as.matrix(ClioquinolLD50)
+ClioquinolCombo[c(4:19),]<-as.matrix(ClioquinolEC50)
+
+write.table(ClioquinolCombo, "Table_LD50_EC50_Clioquinol.txt", sep="\t", quote=F, row.names = F)
+
+ClioquinolCombo <- read.table("Table_LD50_EC50_Clioquinol.txt", header=TRUE, sep="\t")
+
+ClioquinolCombo$Strain <- factor(ClioquinolCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Clioquinol <- ggplot(ClioquinolCombo)+
+    geom_point(aes(x=ClioquinolCombo$Strain, y=ClioquinolCombo$EC50))+
+    geom_errorbar(aes(x=ClioquinolCombo$Strain, ymin=ClioquinolCombo$EC50.min, ymax=ClioquinolCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Clioquinol
+ggsave(filename="Graph_Forest_Clioquinol.pdf", plot=Graph_Clioquinol, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Cloxiquine #
+#Read in the EC50 and LD50 Data#
+```{r}
+CloxiquineEC50 <- read.table("Table_Cloxiquine.txt", sep="\t", header=TRUE)
+CloxiquineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Cloxiquine_Tox.txt", sep="\t",header=TRUE)
+
+CloxiquineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+CloxiquineCombo[c(1:3),]<- as.matrix(CloxiquineLD50)
+CloxiquineCombo[c(4:19),]<-as.matrix(CloxiquineEC50)
+
+write.table(CloxiquineCombo, "Table_LD50_EC50_Cloxiquine.txt", sep="\t", quote=F, row.names = F)
+
+CloxiquineCombo <- read.table("Table_LD50_EC50_Cloxiquine.txt", header=TRUE, sep="\t")
+
+CloxiquineCombo$Strain <- factor(CloxiquineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Cloxiquine <- ggplot(CloxiquineCombo)+
+    geom_point(aes(x=CloxiquineCombo$Strain, y=CloxiquineCombo$EC50))+
+    geom_errorbar(aes(x=CloxiquineCombo$Strain, ymin=CloxiquineCombo$EC50.min, ymax=CloxiquineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Cloxiquine
+ggsave(filename="Graph_Forest_Cloxiquine.pdf", plot=Graph_Cloxiquine, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Disulfiram #
+#Read in the EC50 and LD50 Data#
+```{r}
+DisulfiramEC50 <- read.table("Table_Disulfiram.txt", sep="\t", header=TRUE)
+DisulfiramLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Disulfiram_Tox.txt", sep="\t",header=TRUE)
+
+DisulfiramCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+DisulfiramCombo[c(1:3),]<- as.matrix(DisulfiramLD50)
+DisulfiramCombo[c(4:19),]<-as.matrix(DisulfiramEC50)
+
+write.table(DisulfiramCombo, "Table_LD50_EC50_Disulfiram.txt", sep="\t", quote=F, row.names = F)
+
+DisulfiramCombo <- read.table("Table_LD50_EC50_Disulfiram.txt", header=TRUE, sep="\t")
+
+DisulfiramCombo$Strain <- factor(DisulfiramCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Disulfiram <- ggplot(DisulfiramCombo)+
+    geom_point(aes(x=DisulfiramCombo$Strain, y=DisulfiramCombo$EC50))+
+    geom_errorbar(aes(x=DisulfiramCombo$Strain, ymin=DisulfiramCombo$EC50.min, ymax=DisulfiramCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Disulfiram
+ggsave(filename="Graph_Forest_Disulfiram.pdf", plot=Graph_Disulfiram, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Miltefosine #
+#Read in the EC50 and LD50 Data#
+```{r}
+MiltefosineEC50 <- read.table("Table_Miltefosine.txt", sep="\t", header=TRUE)
+MiltefosineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Miltefosine_Tox.txt", sep="\t",header=TRUE)
+
+MiltefosineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+MiltefosineCombo[c(1:3),]<- as.matrix(MiltefosineLD50)[c(1:3),]
+MiltefosineCombo[c(4:19),]<-as.matrix(MiltefosineEC50)
+
+write.table(MiltefosineCombo, "Table_LD50_EC50_Miltefosine.txt", sep="\t", quote=F, row.names = F)
+
+MiltefosineCombo <- read.table("Table_LD50_EC50_Miltefosine.txt", header=TRUE, sep="\t")
+
+MiltefosineCombo$Strain <- factor(MiltefosineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Miltefosine <- ggplot(MiltefosineCombo)+
+    geom_point(aes(x=MiltefosineCombo$Strain, y=MiltefosineCombo$EC50))+
+    geom_errorbar(aes(x=MiltefosineCombo$Strain, ymin=MiltefosineCombo$EC50.min, ymax=MiltefosineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Miltefosine
+ggsave(filename="Graph_Forest_Miltefosine.pdf", plot=Graph_Miltefosine, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Nitroxiline #
+#Read in the EC50 and LD50 Data#
+```{r}
+NitroxilineEC50 <- read.table("Table_Nitroxiline.txt", sep="\t", header=TRUE)
+NitroxilineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Nitroxiline_Tox.txt", sep="\t",header=TRUE)
+
+NitroxilineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+NitroxilineCombo[c(1:3),]<- as.matrix(NitroxilineLD50)
+NitroxilineCombo[c(4:19),]<-as.matrix(NitroxilineEC50)
+
+write.table(NitroxilineCombo, "Table_LD50_EC50_Nitroxiline.txt", sep="\t", quote=F, row.names = F)
+
+NitroxilineCombo <- read.table("Table_LD50_EC50_Nitroxiline.txt", header=TRUE, sep="\t")
+
+NitroxilineCombo$Strain <- factor(NitroxilineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Nitroxiline <- ggplot(NitroxilineCombo)+
+    geom_point(aes(x=NitroxilineCombo$Strain, y=NitroxilineCombo$EC50))+
+    geom_errorbar(aes(x=NitroxilineCombo$Strain, ymin=NitroxilineCombo$EC50.min, ymax=NitroxilineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Nitroxiline
+ggsave(filename="Graph_Forest_Nitroxiline.pdf", plot=Graph_Nitroxiline, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with OSU_03012 #
+#Read in the EC50 and LD50 Data#
+```{r}
+OSU_03012EC50 <- read.table("Table_OSU_03012.txt", sep="\t", header=TRUE)
+OSU_03012LD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_OSU_03012_Tox.txt", sep="\t",header=TRUE)
+
+OSU_03012Combo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+OSU_03012Combo[c(1:3),]<- as.matrix(OSU_03012LD50)
+OSU_03012Combo[c(4:19),]<-as.matrix(OSU_03012EC50)
+
+write.table(OSU_03012Combo, "Table_LD50_EC50_OSU_03012.txt", sep="\t", quote=F, row.names = F)
+
+OSU_03012Combo <- read.table("Table_LD50_EC50_OSU_03012.txt", header=TRUE, sep="\t")
+
+OSU_03012Combo$Strain <- factor(OSU_03012Combo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_OSU_03012 <- ggplot(OSU_03012Combo)+
+    geom_point(aes(x=OSU_03012Combo$Strain, y=OSU_03012Combo$EC50))+
+    geom_errorbar(aes(x=OSU_03012Combo$Strain, ymin=OSU_03012Combo$EC50.min, ymax=OSU_03012Combo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_OSU_03012
+ggsave(filename="Graph_Forest_OSU_03012.pdf", plot=Graph_OSU_03012, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Caspofungin #
+#Read in the EC50 and LD50 Data#
+```{r}
+CaspofunginEC50 <- read.table("Table_Caspofungin.txt", sep="\t", header=TRUE)
+CaspofunginLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Caspofungin_Tox.txt", sep="\t",header=TRUE)
+
+CaspofunginCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+CaspofunginCombo[c(1:3),]<- as.matrix(CaspofunginLD50)
+CaspofunginCombo[c(4:19),]<-as.matrix(CaspofunginEC50)
+
+write.table(CaspofunginCombo, "Table_LD50_EC50_Caspofungin.txt", sep="\t", quote=F, row.names = F)
+
+CaspofunginCombo <- read.table("Table_LD50_EC50_Caspofungin.txt", header=TRUE, sep="\t")
+
+CaspofunginCombo$Strain <- factor(CaspofunginCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Caspofungin <- ggplot(CaspofunginCombo)+
+    geom_point(aes(x=CaspofunginCombo$Strain, y=CaspofunginCombo$EC50))+
+    geom_errorbar(aes(x=CaspofunginCombo$Strain, ymin=CaspofunginCombo$EC50.min, ymax=CaspofunginCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Caspofungin
+ggsave(filename="Graph_Forest_Caspofungin.pdf", plot=Graph_Caspofungin, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Pentamidine #
+#Read in the EC50 and LD50 Data#
+```{r}
+PentamidineEC50 <- read.table("Table_Pentamidine.txt", sep="\t", header=TRUE)
+PentamidineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Pentamidine_Tox.txt", sep="\t",header=TRUE)
+
+PentamidineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+PentamidineCombo[c(1:3),]<- as.matrix(PentamidineLD50)
+PentamidineCombo[c(4:19),]<-as.matrix(PentamidineEC50)
+
+write.table(PentamidineCombo, "Table_LD50_EC50_Pentamidine.txt", sep="\t", quote=F, row.names = F)
+
+PentamidineCombo <- read.table("Table_LD50_EC50_Pentamidine.txt", header=TRUE, sep="\t")
+
+PentamidineCombo$Strain <- factor(PentamidineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Pentamidine <- ggplot(PentamidineCombo)+
+    geom_point(aes(x=PentamidineCombo$Strain, y=PentamidineCombo$EC50))+
+    geom_errorbar(aes(x=PentamidineCombo$Strain, ymin=PentamidineCombo$EC50.min, ymax=PentamidineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Pentamidine
+ggsave(filename="Graph_Forest_Pentamidine.pdf", plot=Graph_Pentamidine, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Posaconazole #
+#Read in the EC50 and LD50 Data#
+```{r}
+PosaconazoleEC50 <- read.table("Table_Posaconazole.txt", sep="\t", header=TRUE)
+PosaconazoleLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Posaconazole_Tox.txt", sep="\t",header=TRUE)
+
+PosaconazoleCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+PosaconazoleCombo[c(1:3),]<- as.matrix(PosaconazoleLD50)
+PosaconazoleCombo[c(4:19),]<-as.matrix(PosaconazoleEC50)
+
+write.table(PosaconazoleCombo, "Table_LD50_EC50_Posaconazole.txt", sep="\t", quote=F, row.names = F)
+
+PosaconazoleCombo <- read.table("Table_LD50_EC50_Posaconazole.txt", header=TRUE, sep="\t")
+
+PosaconazoleCombo$Strain <- factor(PosaconazoleCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Posaconazole <- ggplot(PosaconazoleCombo)+
+    geom_point(aes(x=PosaconazoleCombo$Strain, y=PosaconazoleCombo$EC50))+
+    geom_errorbar(aes(x=PosaconazoleCombo$Strain, ymin=PosaconazoleCombo$EC50.min, ymax=PosaconazoleCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Posaconazole
+ggsave(filename="Graph_Forest_Posaconazole.pdf", plot=Graph_Posaconazole, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Terbinafine #
+#Read in the EC50 and LD50 Data#
+```{r}
+TerbinafineEC50 <- read.table("Table_Terbinafine.txt", sep="\t", header=TRUE)
+TerbinafineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Terbinafine_Tox.txt", sep="\t",header=TRUE)
+
+TerbinafineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+TerbinafineCombo[c(1:3),]<- as.matrix(TerbinafineLD50)
+TerbinafineCombo[c(4:19),]<-as.matrix(TerbinafineEC50)
+
+write.table(TerbinafineCombo, "Table_LD50_EC50_Terbinafine.txt", sep="\t", quote=F, row.names = F)
+
+TerbinafineCombo <- read.table("Table_LD50_EC50_Terbinafine.txt", header=TRUE, sep="\t")
+
+TerbinafineCombo$Strain <- factor(TerbinafineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Terbinafine <- ggplot(TerbinafineCombo)+
+    geom_point(aes(x=TerbinafineCombo$Strain, y=TerbinafineCombo$EC50))+
+    geom_errorbar(aes(x=TerbinafineCombo$Strain, ymin=TerbinafineCombo$EC50.min, ymax=TerbinafineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Terbinafine
+ggsave(filename="Graph_Forest_Terbinafine.pdf", plot=Graph_Terbinafine, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Triclabendazole #
+#Read in the EC50 and LD50 Data#
+```{r}
+TriclabendazoleEC50 <- read.table("Table_Triclabendazole.txt", sep="\t", header=TRUE)
+TriclabendazoleLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Triclabendazole_Tox.txt", sep="\t",header=TRUE)
+
+TriclabendazoleCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+TriclabendazoleCombo[c(1:3),]<- as.matrix(TriclabendazoleLD50)
+TriclabendazoleCombo[c(4:19),]<-as.matrix(TriclabendazoleEC50)
+
+write.table(TriclabendazoleCombo, "Table_LD50_EC50_Triclabendazole.txt", sep="\t", quote=F, row.names = F)
+
+TriclabendazoleCombo <- read.table("Table_LD50_EC50_Triclabendazole.txt", header=TRUE, sep="\t")
+
+TriclabendazoleCombo$Strain <- factor(TriclabendazoleCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Triclabendazole <- ggplot(TriclabendazoleCombo)+
+    geom_point(aes(x=TriclabendazoleCombo$Strain, y=TriclabendazoleCombo$EC50))+
+    geom_errorbar(aes(x=TriclabendazoleCombo$Strain, ymin=TriclabendazoleCombo$EC50.min, ymax=TriclabendazoleCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Triclabendazole
+ggsave(filename="Graph_Forest_Triclabendazole.pdf", plot=Graph_Triclabendazole, useDingbats=FALSE,width=3, height=8, units="in")    
+```
+
+# Make a Test Plot with Amphotericine #
+#Read in the EC50 and LD50 Data#
+```{r}
+AmphotericineEC50 <- read.table("Table_Amphotericine.txt", sep="\t", header=TRUE)
+AmphotericineLD50 <- read.table("~/Box Sync/DeRisi Lab/Experiments 2020/P1A7 - Drug toxicity data/P1A7-DataProcessing/Table_Amphotericine_Tox.txt", sep="\t",header=TRUE)
+
+AmphotericineCombo <- matrix(data = NA, nrow =  19, ncol = 4, dimnames=list(c(1:19),c("Strain","EC50","EC50.min","EC50.max")))
+
+AmphotericineCombo[c(1:3),]<- as.matrix(AmphotericineLD50)
+AmphotericineCombo[c(4:19),]<-as.matrix(AmphotericineEC50)
+
+write.table(AmphotericineCombo, "Table_LD50_EC50_Amphotericine.txt", sep="\t", quote=F, row.names = F)
+
+AmphotericineCombo <- read.table("Table_LD50_EC50_Amphotericine.txt", header=TRUE, sep="\t")
+
+AmphotericineCombo$Strain <- factor(AmphotericineCombo$Strain, c("Strain1642", "Strain1546", "Strain1544", "Strain1542", "Strain1541", "Strain1643", "Strain1641", "Strain1545", "Strain1540", "Strain1539", "StrainB8", "StrainB3", "Strain124", "Strain1543", "Strain1538", "Strain1537", "Hff", "Hep", "HEK293"))
+                           
+```
+
+#Make a Forest Plot#
+```{r}
+Graph_Amphotericine <- ggplot(AmphotericineCombo)+
+    geom_point(aes(x=AmphotericineCombo$Strain, y=AmphotericineCombo$EC50))+
+    geom_errorbar(aes(x=AmphotericineCombo$Strain, ymin=AmphotericineCombo$EC50.min, ymax=AmphotericineCombo$EC50.max))+
+    theme_classic() +scale_fill_brewer(palette = "Greys", direction=1)+
+    scale_y_log10(limits=c(0.01,10000),breaks=c(0.01,0.1,1,10,100,1000,10000))+
+    coord_flip()
+Graph_Amphotericine
+ggsave(filename="Graph_Forest_Amphotericine.pdf", plot=Graph_Amphotericine, useDingbats=FALSE,width=3, height=8, units="in")    
+```

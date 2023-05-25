@@ -1,0 +1,510 @@
+---
+title: "P1A6 - Clioquinol Graphs"
+output: html_notebook
+---
+
+#Set Working Directory
+```{r}
+rm(list=ls())
+setwd("~/Box Sync/DeRisi Lab/Experiments 2020/P1A6 - EC50 Refinement/P1A6-DataProcessing/")
+```
+
+#Read in Data
+```{r}
+P1A6_24hr_BR1 <- read.table("P1A6-24hr_Data_BR1.txt", sep="\t", header=TRUE)
+P1A6_24hr_BR2 <- read.table("P1A6-24hr_Data_BR2.txt", sep="\t", header=TRUE)
+P1A6_24hr_BR3 <- read.table("P1A6-24hr_Data_BR3.txt", sep="\t", header=TRUE)
+
+P1A6_R_BR1 <- P1A6_24hr_BR1[,c(1,2,3,5,8)]
+P1A6_R_BR2<- P1A6_24hr_BR2[,c(1,2,3,5,8)]
+P1A6_R_BR3<- P1A6_24hr_BR3[,c(1,2,3,5,8)]
+P1A6_R_BR1$BiologicRepeat <- "BR1"
+P1A6_R_BR2$BiologicRepeat<- "BR2"
+P1A6_R_BR3$BiologicRepeat<- "BR3"
+
+P1A6_R <- rbind(P1A6_R_BR1,P1A6_R_BR2,P1A6_R_BR3)
+write.table(P1A6_R,"P1A6-24h_AllRepeats_Long.txt",sep="\t",row.names=F,quote=F)
+
+P1A6_Wide<- P1A6_R_BR1[,c(1:4)]
+P1A6_Wide$BR1_BackgroundCorr <- P1A6_R_BR1[,c(5)]
+P1A6_Wide$BR2_BackgroundCorr <- P1A6_R_BR2[,c(5)]
+P1A6_Wide$BR3_BackgroundCorr <- P1A6_R_BR3[,c(5)]
+write.table(P1A6_Wide,"P1A6-24h_AllRepeats_Wide.txt",sep="\t",row.names=F,quote=F)
+
+Clioquinol <- subset(P1A6_R, P1A6_R$Drug=="Clioquinol" & P1A6_R$Concentration>0 & P1A6_R$Concentration<15)
+```
+
+#Load Libraries 
+```{r}
+library(plyr)
+library(reshape2)
+library(ggplot2)
+library(nplr)
+library(gridExtra)
+```
+
+#Take a look at DMSO Controls#
+```{r}
+levels(P1A6_R$Drug)
+DMSO <- subset(P1A6_Wide, P1A6_Wide$Drug=="DMSO-100" | P1A6_Wide$Drug=="DMSO-1000" | P1A6_Wide$Drug=="DMSO-250" | P1A6_Wide$Drug=="DMSO-500")
+
+DMSO$AverageCorr <- (DMSO$BR1_BackgroundCorr+DMSO$BR2_BackgroundCorr+DMSO$BR3_BackgroundCorr)/3
+
+#Begin by Subsetting Data by Strain#
+Strain1537 <- subset(DMSO, DMSO$Strain == "Strain1537")
+Strain1538 <- subset(DMSO, DMSO$Strain == "Strain1538")
+Strain1539 <- subset(DMSO, DMSO$Strain == "Strain1539")
+Strain1540 <- subset(DMSO, DMSO$Strain == "Strain1540")
+Strain1541 <- subset(DMSO, DMSO$Strain == "Strain1541")
+Strain1542 <- subset(DMSO, DMSO$Strain == "Strain1542")
+Strain1543 <- subset(DMSO, DMSO$Strain == "Strain1543")
+Strain1544 <- subset(DMSO, DMSO$Strain == "Strain1544")
+Strain1545 <- subset(DMSO, DMSO$Strain == "Strain1545")
+Strain1546 <- subset(DMSO, DMSO$Strain == "Strain1546")
+Strain1641 <- subset(DMSO, DMSO$Strain == "Strain1641")
+Strain1642 <- subset(DMSO, DMSO$Strain == "Strain1642")
+Strain1643 <- subset(DMSO, DMSO$Strain == "Strain1643")
+Strain124 <- subset(DMSO, DMSO$Strain == "Strain124")
+StrainB3 <- subset(DMSO, DMSO$Strain == "StrainB3")
+StrainB8 <- subset(DMSO, DMSO$Strain == "StrainB8")
+
+#Calculate Mean for Each Strain#
+DMSO_mean_Strain1537 <- mean(Strain1537$AverageCorr)
+DMSO_mean_Strain1538 <- mean(Strain1538$AverageCorr)
+DMSO_mean_Strain1539 <- mean(Strain1539$AverageCorr)
+DMSO_mean_Strain1540 <- mean(Strain1540$AverageCorr)
+DMSO_mean_Strain1541 <- mean(Strain1541$AverageCorr)
+DMSO_mean_Strain1542 <- mean(Strain1542$AverageCorr)
+DMSO_mean_Strain1543 <- mean(Strain1543$AverageCorr)
+DMSO_mean_Strain1544 <- mean(Strain1544$AverageCorr)
+DMSO_mean_Strain1545 <- mean(Strain1545$AverageCorr)
+DMSO_mean_Strain1546 <- mean(Strain1546$AverageCorr)
+DMSO_mean_Strain1641 <- mean(Strain1641$AverageCorr)
+DMSO_mean_Strain1642 <- mean(Strain1642$AverageCorr)
+DMSO_mean_Strain1643 <- mean(Strain1643$AverageCorr)
+DMSO_mean_Strain124 <- mean(Strain124$AverageCorr)
+DMSO_mean_StrainB3 <- mean(StrainB3$AverageCorr)
+DMSO_mean_StrainB8 <- mean(StrainB8$AverageCorr)
+```
+
+#Subset Clioquinol by Strain#
+```{r}
+#Begin by Subsetting Data by Strain#
+Strain1537 <- subset(Clioquinol, Clioquinol$Strain == "Strain1537")
+Strain1538 <- subset(Clioquinol, Clioquinol$Strain == "Strain1538")
+Strain1539 <- subset(Clioquinol, Clioquinol$Strain == "Strain1539")
+Strain1540 <- subset(Clioquinol, Clioquinol$Strain == "Strain1540")
+Strain1541 <- subset(Clioquinol, Clioquinol$Strain == "Strain1541")
+Strain1542 <- subset(Clioquinol, Clioquinol$Strain == "Strain1542")
+Strain1543 <- subset(Clioquinol, Clioquinol$Strain == "Strain1543")
+Strain1544 <- subset(Clioquinol, Clioquinol$Strain == "Strain1544")
+Strain1545 <- subset(Clioquinol, Clioquinol$Strain == "Strain1545")
+Strain1546 <- subset(Clioquinol, Clioquinol$Strain == "Strain1546")
+Strain1641 <- subset(Clioquinol, Clioquinol$Strain == "Strain1641")
+Strain1642 <- subset(Clioquinol, Clioquinol$Strain == "Strain1642")
+Strain1643 <- subset(Clioquinol, Clioquinol$Strain == "Strain1643")
+Strain124 <- subset(Clioquinol, Clioquinol$Strain == "Strain124")
+StrainB3 <- subset(Clioquinol, Clioquinol$Strain == "StrainB3")
+StrainB8 <- subset(Clioquinol, Clioquinol$Strain == "StrainB8")
+```
+
+#Calculate Percent Inhibition for Clioquinol for Each Strain using DMSO_mean_Strain#
+```{r}
+Strain1537$PercentInhib <- 1-(Strain1537$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1537 - min(Clioquinol$BackgroundCorrect))
+Strain1537_R <- Strain1537[,c(3,1,2,7)]
+Strain1537_Summary <- ddply(Strain1537_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1538$PercentInhib <- 1-(Strain1538$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1538 - min(Clioquinol$BackgroundCorrect))
+Strain1538_R <- Strain1538[,c(3,1,2,7)]
+Strain1538_Summary <- ddply(Strain1538_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1539$PercentInhib <- 1-(Strain1539$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1539 - min(Clioquinol$BackgroundCorrect))
+Strain1539_R <- Strain1539[,c(3,1,2,7)]
+Strain1539_Summary <- ddply(Strain1539_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1540$PercentInhib <- 1-(Strain1540$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1540 - min(Clioquinol$BackgroundCorrect))
+Strain1540_R <- Strain1540[,c(3,1,2,7)]
+Strain1540_Summary <- ddply(Strain1540_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1541$PercentInhib <- 1-(Strain1541$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1541 - min(Clioquinol$BackgroundCorrect))
+Strain1541_R <- Strain1541[,c(3,1,2,7)]
+Strain1541_Summary <- ddply(Strain1541_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1542$PercentInhib <- 1-(Strain1542$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1542 - min(Clioquinol$BackgroundCorrect))
+Strain1542_R <- Strain1542[,c(3,1,2,7)]
+Strain1542_Summary <- ddply(Strain1542_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1543$PercentInhib <- 1-(Strain1543$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1543 - min(Clioquinol$BackgroundCorrect))
+Strain1543_R <- Strain1543[,c(3,1,2,7)]
+Strain1543_Summary <- ddply(Strain1543_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1544$PercentInhib <- 1-(Strain1544$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1544 - min(Clioquinol$BackgroundCorrect))
+Strain1544_R <- Strain1544[,c(3,1,2,7)]
+Strain1544_Summary <- ddply(Strain1544_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1545$PercentInhib <- 1-(Strain1545$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1545 - min(Clioquinol$BackgroundCorrect))
+Strain1545_R <- Strain1545[,c(3,1,2,7)]
+Strain1545_Summary <- ddply(Strain1545_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1546$PercentInhib <- 1-(Strain1546$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1546 - min(Clioquinol$BackgroundCorrect))
+Strain1546_R <- Strain1546[,c(3,1,2,7)]
+Strain1546_Summary <- ddply(Strain1546_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1641$PercentInhib <- 1-(Strain1641$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1641 - min(Clioquinol$BackgroundCorrect))
+Strain1641_R <- Strain1641[,c(3,1,2,7)]
+Strain1641_Summary <- ddply(Strain1641_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1642$PercentInhib <- 1-(Strain1642$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1642 - min(Clioquinol$BackgroundCorrect))
+Strain1642_R <- Strain1642[,c(3,1,2,7)]
+Strain1642_Summary <- ddply(Strain1642_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain1643$PercentInhib <- 1-(Strain1643$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain1643 - min(Clioquinol$BackgroundCorrect))
+Strain1643_R <- Strain1643[,c(3,1,2,7)]
+Strain1643_Summary <- ddply(Strain1643_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+Strain124$PercentInhib <- 1-(Strain124$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_Strain124 - min(Clioquinol$BackgroundCorrect))
+Strain124_R <- Strain124[,c(3,1,2,7)]
+Strain124_Summary <- ddply(Strain124_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+StrainB3$PercentInhib <- 1-(StrainB3$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_StrainB3 - min(Clioquinol$BackgroundCorrect))
+StrainB3_R <- StrainB3[,c(3,1,2,7)]
+StrainB3_Summary <- ddply(StrainB3_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+
+StrainB8$PercentInhib <- 1-(StrainB8$BackgroundCorrect - min(Clioquinol$BackgroundCorrect))/(DMSO_mean_StrainB8 - min(Clioquinol$BackgroundCorrect))
+StrainB8_R <- StrainB8[,c(3,1,2,7)]
+StrainB8_Summary <- ddply(StrainB8_R, c("Strain","Drug","Concentration"),summarize, mean_PercentInhib=mean(PercentInhib),min_PercentInhib=mean(PercentInhib)-sd(PercentInhib),max_PercentInhib=mean(PercentInhib)+sd(PercentInhib))
+```
+
+#Group Strains By Susceptibility to Clioquinol
+```{r}
+FlucS <- c("Strain1537", "Strain1538","Strain1543","Strain124","StrainB3","StrainB8")
+FlucM <- c("Strain1539", "Strain1540","Strain1545","Strain1641","Strain1643")
+FlucR <- c("Strain1541","Strain1542","Strain1544","Strain1546","Strain1642")
+```
+
+#HEX Codes for the UCSF Color Palatte
+```{r}
+Navy <- "#052049"
+Navy01 <- "#506380"
+Blue <- "#178CCB"
+Blue01 <- "#5DAFDB"
+Orange <- "#F48024"
+Orange01<- "#F7A665"
+Cyan <- "#18A3AC"
+Cyan01 <- "#5DBFC5"
+Green <- "#90DB31"
+Green01 <- "#B1D16F"
+Purple <- "#716FB2"
+Purple01 <- "#9C8AC9"
+Pink <- "#EC1848"
+Pink01 <- "#F25D7F"
+Yellow <- "#FFDD00"
+Yellow01 <- "#FFE74D"
+```
+
+#Model Each Strain for FlucS and Clioquinol
+```{r}
+get_estimates <- function(Concentration,Inhibition) {
+    model <- nplr(Concentration,Inhibition)
+    x<- getXcurve(model)
+    y<- getYcurve(model)
+    EC50 <- getEstimates(model,0.5)[c(1),c(3)]
+    EC50_min <- getEstimates(model,0.5)[c(1),c(2)] 
+    EC50_max <- getEstimates(model,0.5)[c(1),c(4)]
+    estimates<- matrix(data = NA, nrow =  200, ncol = 5, dimnames=list(c(1:200),c("x","y","EC50","EC50-min","EC50-max")))
+    estimates[,c(1)]<-x
+    estimates[,c(2)]<-y
+    estimates[c(1),c(3)]<-EC50
+    estimates[c(1),c(4)]<-EC50_min
+    estimates[c(1),c(5)]<-EC50_max
+    as.data.frame(estimates)
+}
+    
+
+estimates_1537<- get_estimates(Strain1537$Concentration,Strain1537$PercentInhib)
+estimates_1538<- get_estimates(Strain1538$Concentration,Strain1538$PercentInhib)
+estimates_1543<- get_estimates(Strain1543$Concentration,Strain1543$PercentInhib)
+estimates_124<- get_estimates(Strain124$Concentration,Strain124$PercentInhib)
+estimates_B3<- get_estimates(StrainB3$Concentration,StrainB3$PercentInhib)
+estimates_B8<- get_estimates(StrainB8$Concentration,StrainB8$PercentInhib)
+
+```
+
+#Graph the FlucS Strains and Clioquinol#
+```{r}
+GRAPH_Clioquinol_S <- ggplot(Strain1537_Summary)+
+    geom_point(aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1537"))+
+    geom_line(data=estimates_1537, aes(x=estimates_1537$x, y=estimates_1537$y, color="Strain1537"))+
+    geom_point(data=Strain1538_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1538"))+
+    geom_line(data=estimates_1538, aes(x=estimates_1538$x, y=estimates_1538$y, color="Strain1538"))+
+    geom_point(data=Strain1543_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1543"))+
+    geom_line(data=estimates_1543, aes(x=estimates_1543$x, y=estimates_1543$y,color="Strain1543"))+
+    geom_point(data=Strain124_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain124"))+
+    geom_line(data=estimates_124, aes(x=estimates_124$x, y=estimates_124$y,color="Strain124"))+
+    geom_point(data=StrainB3_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="StrainB3"))+
+    geom_line(data=estimates_B3, aes(x=estimates_B3$x, y=estimates_B3$y,color="StrainB3"))+
+    geom_point(data=StrainB8_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="StrainB8"))+
+    geom_line(data=estimates_B8, aes(x=estimates_B8$x, y=estimates_B8$y,color="StrainB8"))+
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2,3))+
+    ylim(-0.35,1.25)+
+    xlim(-3,3)+
+    xlab("Clioquinol (uM)") + ylab("Percent Inhibition")+
+    scale_color_manual(values=c(Green,Navy,Orange,Pink,Cyan,Purple))+
+    ggtitle("Susceptible Strains")+
+    theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+GRAPH_Clioquinol_S
+ggsave(filename="GRAPH-Average_Clioquinol_S.pdf", plot=GRAPH_Clioquinol_S, useDingbats=FALSE, width=11, height=8.5, units="in")
+
+
+Table <- matrix(data = NA, nrow =  6, ncol = 4, dimnames=list(c(1:6),c("Strain","EC50","EC50-min","EC50-max")))
+Table[c(1:6),c(1)] <- FlucS
+Table[c(1),c(2:4)] <- as.matrix(estimates_1537[c(1),c(3:5)])
+Table[c(2),c(2:4)] <- as.matrix(estimates_1538[c(1),c(3:5)])
+Table[c(3),c(2:4)] <- as.matrix(estimates_1543[c(1),c(3:5)])
+Table[c(4),c(2:4)] <- as.matrix(estimates_124[c(1),c(3:5)])
+Table[c(5),c(2:4)] <- as.matrix(estimates_B3[c(1),c(3:5)])
+Table[c(6),c(2:4)] <- as.matrix(estimates_B8[c(1),c(3:5)])
+
+Table_Clioquinol_S <- Table
+write.table(Table_Clioquinol_S,"Table_Clioquinol_S.txt", sep="\t", quote=F, row.names = F)
+
+```
+
+#Model Each Strain for FlucM and Clioquinol
+```{r}
+FlucM
+
+estimates_1539 <- get_estimates(Strain1539$Concentration,Strain1539$PercentInhib)
+estimates_1540 <- get_estimates(Strain1540$Concentration,Strain1540$PercentInhib)
+estimates_1545 <- get_estimates(Strain1545$Concentration,Strain1545$PercentInhib)
+estimates_1641 <- get_estimates(Strain1641$Concentration,Strain1641$PercentInhib)
+estimates_1643 <- get_estimates(Strain1643$Concentration,Strain1643$PercentInhib)
+
+```
+
+#Graph the FlucM Strains and Clioquinol#
+```{r}
+GRAPH_Clioquinol_M <- ggplot(Strain1539_Summary)+
+    geom_point(aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1539"))+
+    geom_line(data=estimates_1539, aes(x=estimates_1539$x, y=estimates_1539$y, color="Strain1539"))+
+    geom_point(data=Strain1540_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1540"))+
+    geom_line(data=estimates_1540, aes(x=estimates_1540$x, y=estimates_1540$y, color="Strain1540"))+
+    geom_point(data=Strain1545_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1545"))+
+    geom_line(data=estimates_1545, aes(x=estimates_1545$x, y=estimates_1545$y,color="Strain1545"))+
+    geom_point(data=Strain1641_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1641"))+
+    geom_line(data=estimates_1641, aes(x=estimates_1641$x, y=estimates_1641$y,color="Strain1641"))+
+    geom_point(data=Strain1643_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1643"))+
+    geom_line(data=estimates_1643, aes(x=estimates_1643$x, y=estimates_1643$y,color="Strain1643"))+
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2,3))+
+    ylim(-0.35,1.25)+
+    xlim(-3,3)+
+    xlab("Clioquinol (uM)") + ylab("Percent Inhibition")+
+    scale_color_manual(values=c(Green,Navy,Orange,Pink,Cyan,Purple))+
+    ggtitle("Susceptible Strains")+
+    theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+GRAPH_Clioquinol_M
+ggsave(filename="GRAPH-Average_Clioquinol_M.pdf", plot=GRAPH_Clioquinol_M, useDingbats=FALSE, width=11, height=8.5, units="in")
+
+Table <- matrix(data = NA, nrow =  5, ncol = 4, dimnames=list(c(1:5),c("Strain","EC50","EC50-min","EC50-max")))
+Table[c(1:5),c(1)] <- FlucM
+Table[c(1),c(2:4)] <- as.matrix(estimates_1539[c(1),c(3:5)])
+Table[c(2),c(2:4)] <- as.matrix(estimates_1540[c(1),c(3:5)])
+Table[c(3),c(2:4)] <- as.matrix(estimates_1545[c(1),c(3:5)])
+Table[c(4),c(2:4)] <- as.matrix(estimates_1641[c(1),c(3:5)])
+Table[c(5),c(2:4)] <- as.matrix(estimates_1643[c(1),c(3:5)])
+
+Table_Clioquinol_M <- Table
+write.table(Table_Clioquinol_M,"Table_Clioquinol_M.txt", sep="\t", quote=F, row.names = F)
+```
+
+#Model Each Strain for FlucR and Clioquinol
+```{r}
+FlucR
+
+estimates_1541 <- get_estimates(Strain1541$Concentration,Strain1541$PercentInhib)
+estimates_1542 <- get_estimates(Strain1542$Concentration,Strain1542$PercentInhib)
+estimates_1544 <- get_estimates(Strain1544$Concentration,Strain1544$PercentInhib)
+estimates_1546 <- get_estimates(Strain1546$Concentration,Strain1546$PercentInhib)
+estimates_1642 <- get_estimates(Strain1642$Concentration,Strain1642$PercentInhib)
+
+```
+
+#Graph the FlucR Strains and Clioquinol#
+```{r}
+GRAPH_Clioquinol_R <- ggplot(Strain1541_Summary)+
+    geom_point(aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1541"))+
+    geom_line(data=estimates_1541, aes(x=estimates_1541$x, y=estimates_1541$y, color="Strain1541"))+
+    geom_point(data=Strain1542_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1542"))+
+    geom_line(data=estimates_1542, aes(x=estimates_1542$x, y=estimates_1542$y, color="Strain1542"))+
+    geom_point(data=Strain1544_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1544"))+
+    geom_line(data=estimates_1544, aes(x=estimates_1544$x, y=estimates_1544$y,color="Strain1544"))+
+    geom_point(data=Strain1546_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1546"))+
+    geom_line(data=estimates_1546, aes(x=estimates_1546$x, y=estimates_1546$y,color="Strain1546"))+
+    geom_point(data=Strain1642_Summary, aes(x=log10(Concentration), y=mean_PercentInhib, color="Strain1642"))+
+    geom_line(data=estimates_1642, aes(x=estimates_1642$x, y=estimates_1642$y,color="Strain1642"))+
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2,3))+
+    ylim(-0.35,1.25)+
+    xlim(-3,2)+
+    xlab("Clioquinol (uM)") + ylab("Percent Inhibition")+
+    scale_color_manual(values=c(Green,Navy,Orange,Pink,Cyan,Purple))+
+    ggtitle("Susceptible Strains")+
+    theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+GRAPH_Clioquinol_R
+ggsave(filename="GRAPH-Average_Clioquinol_R.pdf", plot=GRAPH_Clioquinol_R, useDingbats=FALSE, width=11, height=8.5, units="in")
+
+Table <- matrix(data = NA, nrow =  5, ncol = 4, dimnames=list(c(1:5),c("Strain","EC50","EC50-min","EC50-max")))
+Table[c(1:5),c(1)] <- FlucR
+Table[c(1),c(2:4)] <- as.matrix(estimates_1541[c(1),c(3:5)])
+Table[c(2),c(2:4)] <- as.matrix(estimates_1542[c(1),c(3:5)])
+Table[c(3),c(2:4)] <- as.matrix(estimates_1544[c(1),c(3:5)])
+Table[c(4),c(2:4)] <- as.matrix(estimates_1546[c(1),c(3:5)])
+Table[c(5),c(2:4)] <- as.matrix(estimates_1642[c(1),c(3:5)])
+
+Table_Clioquinol_R <- Table
+write.table(Table_Clioquinol_R,"Table_Clioquinol_R.txt", sep="\t", quote=F, row.names = F)
+```
+
+Arrange All Clioquinol Graphs
+```{r}
+Clioquinol <- grid.arrange(GRAPH_Clioquinol_S,GRAPH_Clioquinol_M,GRAPH_Clioquinol_R, nrow=1, ncol=3)
+ggsave("GRAPH-Clioquinol_Fit.pdf", plot=Clioquinol, useDingbats=FALSE, width=11, height=2.5, units="in")
+```
+
+Combine all Tables
+```{r}
+Clioquinol_Table <- rbind(Table_Clioquinol_S, Table_Clioquinol_M, Table_Clioquinol_R)
+write.table(Clioquinol_Table,"Table_Clioquinol.txt", sep="\t", quote=F, row.names = F)
+
+```
+
+#Make Table of Data for Heatmap#
+```{r}
+Strain124_HR <- Strain124_Summary[,c(1:4)]
+Strain124_Wide <- as.data.frame(t(Strain124_HR[,c(3:4)]))
+colnames(Strain124_Wide) <- Strain124_Wide[c(1),]
+row.names(Strain124_Wide) <- c("Concentration", "Strain124")
+Strain124_Wide$Drug <- Strain124_HR[c(1:2),c(2)]
+Strain124_Wide$Strain <- Strain124_HR[c(1:2),c(1)]
+
+Strain1537_HR <- Strain1537_Summary[,c(1:4)]
+Strain1537_Wide <- as.data.frame(t(Strain1537_HR[,c(3:4)]))
+colnames(Strain1537_Wide) <- Strain1537_Wide[c(1),]
+row.names(Strain1537_Wide) <- c("Concentration", "Strain1537")
+Strain1537_Wide$Drug <- Strain1537_HR[c(1:2),c(2)]
+Strain1537_Wide$Strain <- Strain1537_HR[c(1:2),c(1)]
+
+Strain1538_HR <- Strain1538_Summary[,c(1:4)]
+Strain1538_Wide <- as.data.frame(t(Strain1538_HR[,c(3:4)]))
+colnames(Strain1538_Wide) <- Strain1538_Wide[c(1),]
+row.names(Strain1538_Wide) <- c("Concentration", "Strain1538")
+Strain1538_Wide$Drug <- Strain1538_HR[c(1:2),c(2)]
+Strain1538_Wide$Strain <- Strain1538_HR[c(1:2),c(1)]
+
+Strain1539_HR <- Strain1539_Summary[,c(1:4)]
+Strain1539_Wide <- as.data.frame(t(Strain1539_HR[,c(3:4)]))
+colnames(Strain1539_Wide) <- Strain1539_Wide[c(1),]
+row.names(Strain1539_Wide) <- c("Concentration", "Strain1539")
+Strain1539_Wide$Drug <- Strain1539_HR[c(1:2),c(2)]
+Strain1539_Wide$Strain <- Strain1539_HR[c(1:2),c(1)]
+
+Strain1540_HR <- Strain1540_Summary[,c(1:4)]
+Strain1540_Wide <- as.data.frame(t(Strain1540_HR[,c(3:4)]))
+colnames(Strain1540_Wide) <- Strain1540_Wide[c(1),]
+row.names(Strain1540_Wide) <- c("Concentration", "Strain1540")
+Strain1540_Wide$Drug <- Strain1540_HR[c(1:2),c(2)]
+Strain1540_Wide$Strain <- Strain1540_HR[c(1:2),c(1)]
+
+Strain1541_HR <- Strain1541_Summary[,c(1:4)]
+Strain1541_Wide <- as.data.frame(t(Strain1541_HR[,c(3:4)]))
+colnames(Strain1541_Wide) <- Strain1541_Wide[c(1),]
+row.names(Strain1541_Wide) <- c("Concentration", "Strain1541")
+Strain1541_Wide$Drug <- Strain1541_HR[c(1:2),c(2)]
+Strain1541_Wide$Strain <- Strain1541_HR[c(1:2),c(1)]
+
+Strain1542_HR <- Strain1542_Summary[,c(1:4)]
+Strain1542_Wide <- as.data.frame(t(Strain1542_HR[,c(3:4)]))
+colnames(Strain1542_Wide) <- Strain1542_Wide[c(1),]
+row.names(Strain1542_Wide) <- c("Concentration", "Strain1542")
+Strain1542_Wide$Drug <- Strain1542_HR[c(1:2),c(2)]
+Strain1542_Wide$Strain <- Strain1542_HR[c(1:2),c(1)]
+
+Strain1543_HR <- Strain1543_Summary[,c(1:4)]
+Strain1543_Wide <- as.data.frame(t(Strain1543_HR[,c(3:4)]))
+colnames(Strain1543_Wide) <- Strain1543_Wide[c(1),]
+row.names(Strain1543_Wide) <- c("Concentration", "Strain1543")
+Strain1543_Wide$Drug <- Strain1543_HR[c(1:2),c(2)]
+Strain1543_Wide$Strain <- Strain1543_HR[c(1:2),c(1)]
+
+Strain1544_HR <- Strain1544_Summary[,c(1:4)]
+Strain1544_Wide <- as.data.frame(t(Strain1544_HR[,c(3:4)]))
+colnames(Strain1544_Wide) <- Strain1544_Wide[c(1),]
+row.names(Strain1544_Wide) <- c("Concentration", "Strain1544")
+Strain1544_Wide$Drug <- Strain1544_HR[c(1:2),c(2)]
+Strain1544_Wide$Strain <- Strain1544_HR[c(1:2),c(1)]
+
+Strain1545_HR <- Strain1545_Summary[,c(1:4)]
+Strain1545_Wide <- as.data.frame(t(Strain1545_HR[,c(3:4)]))
+colnames(Strain1545_Wide) <- Strain1545_Wide[c(1),]
+row.names(Strain1545_Wide) <- c("Concentration", "Strain1545")
+Strain1545_Wide$Drug <- Strain1545_HR[c(1:2),c(2)]
+Strain1545_Wide$Strain <- Strain1545_HR[c(1:2),c(1)]
+
+Strain1546_HR <- Strain1546_Summary[,c(1:4)]
+Strain1546_Wide <- as.data.frame(t(Strain1546_HR[,c(3:4)]))
+colnames(Strain1546_Wide) <- Strain1546_Wide[c(1),]
+row.names(Strain1546_Wide) <- c("Concentration", "Strain1546")
+Strain1546_Wide$Drug <- Strain1546_HR[c(1:2),c(2)]
+Strain1546_Wide$Strain <- Strain1546_HR[c(1:2),c(1)]
+
+Strain1641_HR <- Strain1641_Summary[,c(1:4)]
+Strain1641_Wide <- as.data.frame(t(Strain1641_HR[,c(3:4)]))
+colnames(Strain1641_Wide) <- Strain1641_Wide[c(1),]
+row.names(Strain1641_Wide) <- c("Concentration", "Strain1641")
+Strain1641_Wide$Drug <- Strain1641_HR[c(1:2),c(2)]
+Strain1641_Wide$Strain <- Strain1641_HR[c(1:2),c(1)]
+
+Strain1642_HR <- Strain1642_Summary[,c(1:4)]
+Strain1642_Wide <- as.data.frame(t(Strain1642_HR[,c(3:4)]))
+colnames(Strain1642_Wide) <- Strain1642_Wide[c(1),]
+row.names(Strain1642_Wide) <- c("Concentration", "Strain1642")
+Strain1642_Wide$Drug <- Strain1642_HR[c(1:2),c(2)]
+Strain1642_Wide$Strain <- Strain1642_HR[c(1:2),c(1)]
+
+Strain1643_HR <- Strain1643_Summary[,c(1:4)]
+Strain1643_Wide <- as.data.frame(t(Strain1643_HR[,c(3:4)]))
+colnames(Strain1643_Wide) <- Strain1643_Wide[c(1),]
+row.names(Strain1643_Wide) <- c("Concentration", "Strain1643")
+Strain1643_Wide$Drug <- Strain1643_HR[c(1:2),c(2)]
+Strain1643_Wide$Strain <- Strain1643_HR[c(1:2),c(1)]
+
+StrainB3_HR <- StrainB3_Summary[,c(1:4)]
+StrainB3_Wide <- as.data.frame(t(StrainB3_HR[,c(3:4)]))
+colnames(StrainB3_Wide) <- StrainB3_Wide[c(1),]
+row.names(StrainB3_Wide) <- c("Concentration", "StrainB3")
+StrainB3_Wide$Drug <- StrainB3_HR[c(1:2),c(2)]
+StrainB3_Wide$Strain <- StrainB3_HR[c(1:2),c(1)]
+
+StrainB8_HR <- StrainB8_Summary[,c(1:4)]
+StrainB8_Wide <- as.data.frame(t(StrainB8_HR[,c(3:4)]))
+colnames(StrainB8_Wide) <- StrainB8_Wide[c(1),]
+row.names(StrainB8_Wide) <- c("Concentration", "StrainB8")
+StrainB8_Wide$Drug <- StrainB8_HR[c(1:2),c(2)]
+StrainB8_Wide$Strain <- StrainB8_HR[c(1:2),c(1)]
+
+Strains_Wide <- merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(Strain1537_Wide[c(2),], Strain1538_Wide[c(2),],all=TRUE),Strain1543_Wide[c(2),],all=TRUE),Strain124_Wide[c(2),], all=TRUE),StrainB3_Wide[c(2),], all=TRUE),StrainB8_Wide[c(2),], all=TRUE),Strain1539_Wide[c(2),],all=TRUE), Strain1540_Wide[c(2),], all=TRUE), Strain1545_Wide[c(2),], all=TRUE), Strain1641_Wide[c(2),], all=TRUE), Strain1643_Wide[c(2),], all=TRUE), Strain1541_Wide[c(2),], all=TRUE), Strain1542_Wide[c(2),], all=TRUE), Strain1544_Wide[c(2),], all=TRUE), Strain1546_Wide[c(2),],all=TRUE),Strain1642_Wide[c(2),], all=TRUE)
+
+write.table(Strains_Wide, "Clioquinol_Strains_Wide.txt", sep="\t", row.names=F, quote=F)
+```
+
